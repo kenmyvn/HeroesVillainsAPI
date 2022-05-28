@@ -1,3 +1,4 @@
+from cmath import log
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -12,14 +13,15 @@ def supers_list(request):
 
     if request.method == 'GET':
 
-        super_types_name = request.query_params.get('')
+        super_types_name = request.query_params.get('type')
+        print(super_types_name)
 
-        queryset = Super.objects.all()
+        supers = Super.objects.all()
 
         if super_types_name:
-            queryset = queryset.filter(super_types__name=super_types_name)
+            supers = supers.filter(super_type__type=super_types_name)
 
-        serializer = SuperSerializer(queryset, many=True)
+        serializer = SuperSerializer(supers, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
         serializer = SuperSerializer(data=request.data)
@@ -37,7 +39,7 @@ def super_detail(request, pk):
         serializer = SuperSerializer(super);
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = SuperSerializer(Super, data=request.data)
+        serializer = SuperSerializer(super, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
