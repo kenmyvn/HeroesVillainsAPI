@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+
+from super_types.models import SuperType
 from .serializers import SuperSerializer
 from .models import Super
 
@@ -9,11 +11,16 @@ from .models import Super
 def supers_list(request):
 
     if request.method == 'GET':
-        supers = Super.objects.all()
-        serializer = SuperSerializer(supers, many=True)
+
+        super_types_name = request.query_params.get('')
+
+        queryset = Super.objects.all()
+
+        if super_types_name:
+            queryset = queryset.filter(super_types__name=super_types_name)
+
+        serializer = SuperSerializer(queryset, many=True)
         return Response(serializer.data)
-
-
     elif request.method == 'POST':
         serializer = SuperSerializer(data=request.data)
         if serializer.is_valid() == True:
